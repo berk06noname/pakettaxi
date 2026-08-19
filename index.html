@@ -120,8 +120,11 @@
   .section-body{padding:16px 20px 20px;}
 
   label{
-    display:block; font-size:12px; color:var(--text-mid); margin-bottom:6px;
+    display:flex; align-items:flex-end;
+    min-height:30px;
+    font-size:12px; color:var(--text-mid); margin-bottom:6px;
     font-family:'Space Mono',monospace; letter-spacing:.02em;
+    line-height:1.35;
   }
   input[type=number]{
     width:100%;
@@ -136,6 +139,13 @@
     transition:border-color .15s;
   }
   input[type=number]:focus{border-color:var(--amber);}
+  input[type=number][readonly]{
+    color:var(--amber);
+    font-weight:700;
+    cursor:default;
+    background:var(--asphalt-1);
+  }
+  input[type=number][readonly]:focus{border-color:var(--asphalt-3);}
   input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{opacity:.5;}
 
   .row2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
@@ -145,9 +155,15 @@
   .field-note{font-size:12px; color:var(--text-low); margin-top:6px;}
 
   /* daily package table */
+  .day-head{
+    display:grid; grid-template-columns:32px 1fr 130px 110px 32px;
+    gap:8px; padding:0 10px; margin-bottom:8px;
+    font-family:'Space Mono',monospace; font-size:11px; color:var(--text-low);
+    text-transform:uppercase; letter-spacing:.04em;
+  }
   .day-list{display:flex; flex-direction:column; gap:8px; margin-bottom:12px;}
   .day-row{
-    display:grid; grid-template-columns:38px 1fr 110px 100px 90px 32px;
+    display:grid; grid-template-columns:32px 1fr 130px 110px 32px;
     align-items:center; gap:8px;
     padding:8px 10px;
     background:var(--asphalt-2);
@@ -159,19 +175,22 @@
   }
   .day-row input{padding:8px 10px; font-size:14px;}
   .day-row .tier-tag{
-    font-family:'Space Mono',monospace; font-size:11px; color:var(--text-mid);
+    font-family:'Space Mono',monospace; font-size:11.5px; color:var(--text-mid);
     text-align:center; white-space:nowrap;
   }
   .day-row .earn{
     font-family:'Space Mono',monospace; font-size:13px; color:var(--green); text-align:right; font-weight:700;
+    white-space:nowrap;
   }
   .day-row .rm{
     background:none; border:none; color:var(--red); cursor:pointer; font-size:16px; line-height:1;
     width:28px; height:28px; border-radius:6px;
+    justify-self:center;
   }
   .day-row .rm:hover{background:rgba(255,107,94,.12);}
   @media(max-width:640px){
-    .day-row{grid-template-columns:28px 1fr 1fr 32px; grid-template-areas:"idx paket tier rm" "idx earn earn rm";}
+    .day-head{display:none;}
+    .day-row{grid-template-columns:24px 1fr 1fr 28px; grid-template-areas:"idx paket tier rm" "idx earn earn rm";}
     .day-row .day-idx{grid-area:idx;}
     .day-row .paket-input{grid-area:paket;}
     .day-row .tier-tag{grid-area:tier;}
@@ -246,17 +265,9 @@
       <div class="section-value" id="saatKazancVal">₺0,00</div>
     </div>
     <div class="section-body">
-      <div class="row2">
-        <div>
-          <label>Ay İçinde Çalışılan Saat</label>
-          <input type="number" id="saatInput" min="0" step="0.5" placeholder="Örn. 180" value="0">
-        </div>
-        <div>
-          <label>Saatlik Ücret</label>
-          <input type="number" id="saatUcret" value="177" step="1">
-        </div>
-      </div>
-      <div class="field-note">Saat &times; saatlik ücret olarak hesaplanır.</div>
+      <label>Ay İçinde Çalışılan Saat</label>
+      <input type="number" id="saatInput" min="0" step="0.5" placeholder="0">
+      <div class="field-note">Saat &times; ₺177 saatlik ücret olarak hesaplanır.</div>
     </div>
   </div>
 
@@ -268,11 +279,18 @@
     </div>
     <div class="section-body">
       <div class="section-sub" style="margin-bottom:12px;">Her gün attığın paket sayısını gir, o güne ait paket dilimi ve kazancı otomatik bulunur.</div>
+      <div class="day-head">
+        <div>#</div>
+        <div>Paket Sayısı</div>
+        <div>Dilim</div>
+        <div style="text-align:right;">Kazanç</div>
+        <div></div>
+      </div>
       <div class="day-list" id="dayList"></div>
       <button class="btn" id="addDayBtn">+ Gün Ekle</button>
       <div class="tier-strip">
         <span>Girilen gün sayısı: <b id="dayCount">0</b></span>
-        <span>Toplam paket (günlük girişlerden): <b id="dailyPaketToplam">0</b></span>
+        <span>Toplam paket: <b id="dailyPaketToplam">0</b></span>
       </div>
     </div>
   </div>
@@ -285,8 +303,8 @@
     </div>
     <div class="section-body">
       <label>Ay İçinde Atılan Toplam Paket Sayısı</label>
-      <input type="number" id="aylikToplamPaket" min="0" step="1" value="0">
-      <div class="field-note">Varsayılan olarak günlük girişlerin toplamıdır, istersen elle değiştirebilirsin.</div>
+      <input type="number" id="aylikToplamPaket" min="0" step="1" placeholder="0" readonly>
+      <div class="field-note">Günlük girişlerin toplamından otomatik hesaplanır.</div>
       <div class="tier-strip">
         <span>Bulunan dilim:</span>
         <b id="bonusTierLabel">—</b>
@@ -303,13 +321,13 @@
     <div class="section-body">
       <div class="row2">
         <div class="km-block">
-          <label>4–6 KM Üstü Paket Adedi</label>
-          <input type="number" id="paket46" min="0" step="1" value="0">
+          <label>4–6 KM Paket Adedi</label>
+          <input type="number" id="paket46" min="0" step="1" placeholder="0">
           <div class="km-price">Paket başı ₺25,00</div>
         </div>
         <div class="km-block">
-          <label>6 KM Üstü (6–Infinity) Paket Adedi</label>
-          <input type="number" id="paket6plus" min="0" step="1" value="0">
+          <label>6 KM Üstü Paket Adedi</label>
+          <input type="number" id="paket6plus" min="0" step="1" placeholder="0">
           <div class="km-price">Paket başı ₺35,00</div>
         </div>
       </div>
@@ -319,6 +337,7 @@
   <footer>
     <div class="divider"></div>
     Paket Taxi Kurye Kazanç Hesaplama &middot; Tüm hesaplamalar tarifeye göre otomatik güncellenir
+    <div style="margin-top:8px; color:var(--text-low);">created by berkay</div>
   </footer>
 
 </div>
@@ -353,6 +372,7 @@ const monthlyBonusTiers = [
 
 const FIYAT_4_6 = 25;
 const FIYAT_6_PLUS = 35;
+const SAATLIK_UCRET = 177;
 
 function findTier(count, tiers){
   if(!count || count <= 0) return null;
@@ -371,40 +391,46 @@ function fmtRange(t, isMonthly){
 
 // ---- STATE ----
 let days = [{paket: 0}, {paket: 0}];
-let manualMonthlyOverride = false;
 
 const dayListEl = document.getElementById('dayList');
 const addDayBtn = document.getElementById('addDayBtn');
 const aylikToplamPaketInput = document.getElementById('aylikToplamPaket');
 
+function buildRow(day, i){
+  const tier = findTier(day.paket, dailyTiers);
+  const row = document.createElement('div');
+  row.className = 'day-row';
+  row.innerHTML = `
+    <div class="day-idx">${i+1}</div>
+    <input class="paket-input" type="number" min="0" step="1" placeholder="Paket sayısı" value="${day.paket || ''}">
+    <div class="tier-tag">${tier ? tier.l+'–'+(tier.h===Infinity?'∞':tier.h) : '—'}</div>
+    <div class="earn">${tier ? formatTL(tier.kazanc) : '₺0,00'}</div>
+    <button class="rm" title="Günü sil">×</button>
+  `;
+  const input = row.querySelector('input');
+  input.addEventListener('input', (e) => {
+    days[i].paket = parseFloat(e.target.value) || 0;
+    updateRowDisplay(row, days[i]);
+    recalc();
+  });
+  row.querySelector('.rm').addEventListener('click', () => {
+    days.splice(i,1);
+    if(days.length === 0) days.push({paket:0});
+    renderDays();
+    recalc();
+  });
+  return row;
+}
+
+function updateRowDisplay(row, day){
+  const tier = findTier(day.paket, dailyTiers);
+  row.querySelector('.tier-tag').textContent = tier ? tier.l+'–'+(tier.h===Infinity?'∞':tier.h) : '—';
+  row.querySelector('.earn').textContent = tier ? formatTL(tier.kazanc) : '₺0,00';
+}
+
 function renderDays(){
   dayListEl.innerHTML = '';
-  days.forEach((day, i) => {
-    const tier = findTier(day.paket, dailyTiers);
-    const row = document.createElement('div');
-    row.className = 'day-row';
-    row.innerHTML = `
-      <div class="day-idx">${i+1}</div>
-      <input class="paket-input" type="number" min="0" step="1" placeholder="Paket sayısı" value="${day.paket || ''}">
-      <div class="tier-tag">${tier ? tier.l+'–'+(tier.h===Infinity?'∞':tier.h) : '—'}</div>
-      <div class="earn">${tier ? formatTL(tier.kazanc) : '₺0,00'}</div>
-      <div class="tier-tag"></div>
-      <button class="rm" title="Günü sil">×</button>
-    `;
-    const input = row.querySelector('input');
-    input.addEventListener('input', (e) => {
-      days[i].paket = parseFloat(e.target.value) || 0;
-      renderDays();
-      recalc();
-    });
-    row.querySelector('.rm').addEventListener('click', () => {
-      days.splice(i,1);
-      if(days.length === 0) days.push({paket:0});
-      renderDays();
-      recalc();
-    });
-    dayListEl.appendChild(row);
-  });
+  days.forEach((day, i) => dayListEl.appendChild(buildRow(day, i)));
   document.getElementById('dayCount').textContent = days.length;
 }
 
@@ -414,15 +440,11 @@ addDayBtn.addEventListener('click', () => {
   recalc();
 });
 
-aylikToplamPaketInput.addEventListener('input', () => {
-  manualMonthlyOverride = true;
-});
-
 // ---- HESAPLAMA ----
 function recalc(){
   // 1. Saatlik kazanç
   const saat = parseFloat(document.getElementById('saatInput').value) || 0;
-  const saatUcret = parseFloat(document.getElementById('saatUcret').value) || 0;
+  const saatUcret = SAATLIK_UCRET;
   const saatKazanc = saat * saatUcret;
   document.getElementById('saatKazancVal').textContent = formatTL(saatKazanc);
 
@@ -438,9 +460,7 @@ function recalc(){
   document.getElementById('dailyPaketToplam').textContent = dailyPaketToplam;
 
   // Auto-fill monthly total unless user overrode it
-  if(!manualMonthlyOverride){
-    aylikToplamPaketInput.value = dailyPaketToplam;
-  }
+  aylikToplamPaketInput.value = dailyPaketToplam || '';
 
   // 3. Aylık bonus
   const aylikToplamPaket = parseFloat(aylikToplamPaketInput.value) || 0;
@@ -467,10 +487,9 @@ function recalc(){
   `;
 }
 
-['saatInput','saatUcret','paket46','paket6plus'].forEach(id => {
+['saatInput','paket46','paket6plus'].forEach(id => {
   document.getElementById(id).addEventListener('input', recalc);
 });
-aylikToplamPaketInput.addEventListener('input', recalc);
 
 renderDays();
 recalc();
