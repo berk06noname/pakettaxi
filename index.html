@@ -121,7 +121,7 @@
 
   label{
     display:flex; align-items:flex-end;
-    min-height:30px;
+    min-height:34px;
     font-size:12px; color:var(--text-mid); margin-bottom:6px;
     font-family:'Space Mono',monospace; letter-spacing:.02em;
     line-height:1.35;
@@ -190,11 +190,11 @@
   .day-row .rm:hover{background:rgba(255,107,94,.12);}
   @media(max-width:640px){
     .day-head{display:none;}
-    .day-row{grid-template-columns:24px 1fr 1fr 28px; grid-template-areas:"idx paket tier rm" "idx earn earn rm";}
+    .day-row{grid-template-columns:24px 1fr 100px 28px; grid-template-areas:"idx paket earn rm";}
     .day-row .day-idx{grid-area:idx;}
     .day-row .paket-input{grid-area:paket;}
-    .day-row .tier-tag{grid-area:tier;}
-    .day-row .earn{grid-area:earn; text-align:left;}
+    .day-row .tier-tag{display:none;}
+    .day-row .earn{grid-area:earn; text-align:right;}
     .day-row .rm{grid-area:rm;}
   }
 
